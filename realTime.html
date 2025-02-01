@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Realtime Text Sync with Dope Sidebar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    /* Reset & Global Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #1f1c2c, #928dab);
+      color: #f1f1f1;
+      overflow-x: hidden;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+    button {
+      font-family: inherit;
+    }
+    
+    /* Container & Layout */
+    body {
+      padding: 20px;
+      position: relative;
+    }
+    
+    /* Auth Container */
+    .auth-container {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 20px 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+      max-width: 400px;
+      margin: 50px auto 30px;
+      text-align: center;
+    }
+    .auth-container input {
+      width: 100%;
+      padding: 12px 15px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 6px;
+      outline: none;
+      font-size: 1rem;
+    }
+    .auth-container button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      background: #ff416c;
+      border: none;
+      border-radius: 6px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+    .auth-container button:hover {
+      background: #ff4b2b;
+      transform: translateY(-2px);
+    }
+    #userStatus {
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    
+    /* Real-Time Textarea */
+    #textArea {
+      width: 100%;
+      max-width: 900px;
+      height: 300px;
+      padding: 20px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 8px;
+      resize: vertical;
+      background: rgba(255, 255, 255, 0.1);
+      color: #f1f1f1;
+      box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(2px);
+      margin: 0 auto;
+      display: block;
+      transition: background 0.3s ease;
+    }
+    #textArea:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    /* Sidebar Styles */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -300px;
+      width: 300px;
+      height: 100%;
+      background: linear-gradient(135deg, #ff416c, #ff4b2b);
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.8);
+      transition: left 0.4s ease;
+      padding: 40px 20px;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+    .sidebar.open {
+      left: 0;
+    }
+    .sidebar .profile {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .sidebar .profile img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 15px;
+      border: 3px solid #fff;
+    }
+    .sidebar .profile h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+    .sidebar .profile p {
+      font-size: 0.95rem;
+      color: #e0e0e0;
+    }
+    .sidebar .menu button {
+      width: 100%;
+      padding: 12px;
+      margin: 12px 0;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid #fff;
+      border-radius: 6px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+    .sidebar .menu button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.02);
+    }
+    
+    /* Sidebar Toggle Button */
+    .sidebar-toggle {
+      position: fixed;
+      top: 25px;
+      left: 25px;
+      background: rgba(0, 0, 0, 0.7);
+      border: none;
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 1.4rem;
+      color: #fff;
+      cursor: pointer;
+      z-index: 1100;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+    .sidebar-toggle:hover {
+      background: rgba(0, 0, 0, 0.85);
+      transform: scale(1.05);
+    }
+    
+    /* Profile Logo in the Lower Left Corner */
+    .profile-logo {
+      position: fixed;
+      bottom: 25px;
+      left: 25px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.8);
+      cursor: pointer;
+      z-index: 1100;
+      transition: transform 0.3s ease;
+    }
+    .profile-logo:hover {
+      transform: scale(1.1);
+    }
+    .profile-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    /* Scrollbar Styling for Sidebar */
+    .sidebar::-webkit-scrollbar {
+      width: 8px;
+    }
+    .sidebar::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .sidebar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+    }
+    
+    /* Responsive Tweaks */
+    @media (max-width: 600px) {
+      .sidebar {
+        width: 260px;
+        left: -260px;
+      }
+      .sidebar.open {
+        left: 0;
+      }
+      #textArea {
+        height: 240px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Toggle Button -->
+  <button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="profile" id="sidebarProfile">
+      <img src="person.png" alt="Profile Picture" id="profilePic">
+      <h2 id="profileName">User Name</h2>
+      <p id="profileEmail">user@example.com</p>
+    </div>
+    <div class="menu">
+      <button id="logoutBtn">Logout</button>
+      <a href="index.html"><button id="logoutBtn">MAIN PAGE</button></a>
+    </div>
+  </div>
+
+  <!-- Authentication Container -->
+  <div class="auth-container" id="authContainer">
+    <div id="userStatus">Not logged in</div>
+    <div id="authButtons">
+      <input type="email" id="email" placeholder="Email">
+      <input type="password" id="password" placeholder="Password">
+      <button onclick="login()">Login</button>
+    </div>
+  </div>
+
+  <!-- Real-Time Textarea -->
+  <textarea id="textArea" placeholder="Login to start typing..." disabled></textarea>
+
+  <!-- Profile Logo at Lower Left Corner -->
+  <div class="profile-logo" id="profileLogo">
+    <img id="profileLogoImg" src="person.png" alt="Profile Logo">
+  </div>
+
+  <!-- Firebase & App Script -->
+  <script type="module">
+    // Import Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getDatabase, ref as dbRef, set, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+    // Firebase configuration (update as needed)
+    const firebaseConfig = {
+      apiKey: "AIzaSyCYY2GQqS0tCXb7Oxw8AWXhpexq9e8VRUs",
+      authDomain: "aspirehub-32863.firebaseapp.com",
+      projectId: "aspirehub-32863",
+      storageBucket: "aspirehub-32863.appspot.com",
+      messagingSenderId: "686810111182",
+      appId: "1:686810111182:web:4290b4b1b6e64934ec449f",
+      measurementId: "G-KX41R0SSMY",
+      databaseURL: "https://aspirehub-32863-default-rtdb.asia-southeast1.firebasedatabase.app"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    // DOM Elements
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const userStatus = document.getElementById('userStatus');
+    const authButtons = document.getElementById('authButtons');
+    const textArea = document.getElementById('textArea');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    const profilePic = document.getElementById('profilePic');
+    const profileName = document.getElementById('profileName');
+    const profileEmail = document.getElementById('profileEmail');
+    const profileLogo = document.getElementById('profileLogo');
+    const profileLogoImg = document.getElementById('profileLogoImg');
+
+    let currentUser = null;
+
+    // Sidebar Toggle Events
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+    });
+    profileLogo.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+    });
+
+    // Authentication Observer
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        userStatus.textContent = `Logged in as: ${user.email}`;
+        authButtons.style.display = 'none';
+        textArea.disabled = false;
+        // Update Sidebar & Profile Logo Info
+        profileEmail.textContent = user.email;
+        profileName.textContent = user.displayName || "User Name";
+        if (user.photoURL) {
+          profilePic.src = user.photoURL;
+          profileLogoImg.src = user.photoURL;
+        }
+        // Setup Realtime Text Sync
+        setupRealtimeUpdates(user);
+      } else {
+        currentUser = null;
+        userStatus.textContent = 'Not logged in';
+        authButtons.style.display = 'block';
+        textArea.disabled = true;
+        textArea.value = '';
+      }
+    });
+
+    // Login Function
+    async function login() {
+      const email = emailInput.value;
+      const password = passwordInput.value;
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (error) {
+        alert('Login error: ' + error.message);
+      }
+    }
+
+    // Logout Event
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+      } catch (error) {
+        alert('Logout error: ' + error.message);
+      }
+    });
+
+    // Realtime Database Sync
+    function setupRealtimeUpdates(user) {
+      const userTextRef = dbRef(database, `users/${user.uid}/text`);
+      // Listen for changes and update textarea
+      onValue(userTextRef, (snapshot) => {
+        const text = snapshot.val() || '';
+        if (text !== textArea.value) {
+          textArea.value = text;
+        }
+      });
+      // Update database on input
+      textArea.addEventListener('input', (e) => {
+        set(userTextRef, e.target.value);
+      });
+    }
+  </script>
+</body>
+</html>
