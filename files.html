@@ -441,7 +441,6 @@ h1 {
   <div class="main-content">
     <!-- Header and search bar -->
     <div class="header-container">
-      
       <div class="folder-select-container">
         <select id="folderSelect">
           <option value="general">General Folder</option>
@@ -450,11 +449,6 @@ h1 {
       </div>
     </div>
   
-    
-  
-    <!-- File Grid -->
-    <div class="file-grid" id="fileGrid"></div>
-  
     <!-- Empty State Video -->
     <div id="emptyState" class="empty-state">
       <video autoplay loop muted playsinline>
@@ -462,7 +456,17 @@ h1 {
         Your browser does not support the video tag.
       </video>
     </div>
+  
+    <!-- File Grid -->
+    <div class="file-grid" id="fileGrid"></div>
+  
+    <!-- Load More Button -->
+    <button id="loadMoreBtn" style="display: none; margin: 20px auto; padding: 10px 20px; background-color: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;">
+      Load More
+    </button>
   </div>
+  
+    
   <script type="module">
     // Import and initialize Firebase App
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
