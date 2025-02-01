@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Files</title>
+  <!-- Google Font for a modern look -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    /* Global Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      color: #333;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 2.5em;
+      color: #2c3e50;
+    }
+    /* Sidebar Styles */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 280px;
+      height: 100%;
+      background: linear-gradient(135deg, #ffffff, #e3f2fd);
+      box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+      border-top-right-radius: 12px;
+      border-bottom-right-radius: 12px;
+      padding: 30px 20px;
+      transition: left 0.3s;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .sidebar.open {
+      left: 0;
+    }
+    .sidebar .profile {
+      text-align: center;
+      margin-bottom: 35px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    .sidebar .profile:hover {
+      transform: scale(1.05);
+    }
+    .sidebar .profile img {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 15px;
+      border: 3px solid #2196F3;
+    }
+    .sidebar .profile h2 {
+      font-size: 1.3rem;
+      margin-bottom: 5px;
+      color: #1976D2;
+    }
+    .sidebar .profile p {
+      font-size: 0.95rem;
+      color: #666;
+    }
+    .sidebar .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .sidebar .menu button {
+      width: 100%;
+      text-align: left;
+      padding-left: 25px;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      color: #1976D2;
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: color 0.3s;
+    }
+    .sidebar .menu button:hover {
+      color: #2196F3;
+    }
+    /* Sidebar Toggle Button using Font Awesome Icon */
+    .sidebar-toggle {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: transparent;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 16px;
+      cursor: pointer;
+      z-index: 1100;
+      font-size: 1.2rem;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .sidebar-toggle:hover {
+      background: transparent;
+      transform: scale(1.05);
+    }
+    /* Main Content Styles */
+    .main-content {
+      margin-left: 40px; /* space for sidebar toggle */
+      padding: 20px;
+    }
+    /* Remove container box structure */
+    .main-content h1 {
+      background: none;
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+      padding: 0;
+      margin-bottom: 20px;
+    }
+    /* Search Bar */
+    .search-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .search-container input {
+      padding: 10px 15px;
+      border: 1px solid #ccc;
+      border-radius: 30px;
+      font-size: 1em;
+      outline: none;
+      width: 300px;
+      transition: box-shadow 0.3s;
+    }
+    .search-container input:focus {
+      box-shadow: 0 0 8px rgba(52, 152, 219, 0.6);
+      border-color: #2196F3;
+    }
+    /* File Grid Styles */
+    .file-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 25px;
+    }
+    .file-item {
+      background: #fff;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+    .file-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+    .file-item img,
+    .file-item embed {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-bottom: 1px solid #eee;
+    }
+    .content {
+      padding: 15px;
+      text-align: center;
+    }
+    .content h3 {
+      margin-bottom: 15px;
+      font-size: 1.2em;
+      color: #2c3e50;
+      word-break: break-all;
+    }
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    .actions a,
+    .actions button {
+      display: inline-block;
+      padding: 8px 15px;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 25px;
+      font-weight: bold;
+      transition: background 0.3s;
+      cursor: pointer;
+      border: none;
+    }
+    .download-btn {
+      background: linear-gradient(135deg, #ff6a00, #ee0979);
+    }
+    .download-btn:hover {
+      background: linear-gradient(135deg, #ee0979, #ff6a00);
+    }
+    .delete-btn {
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+    }
+    .delete-btn:hover {
+      background: linear-gradient(135deg, #c0392b, #e74c3c);
+    }
+    /* Favorite Button Styles */
+    .favorite-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1.3em;
+      color: #f1c40f;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      transition: color 0.3s;
+    }
+    .favorite-btn.favorited {
+      color: #f39c12;
+    }
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2em;
+      }
+      .search-container input {
+        width: 90%;
+      }
+    }
+    .favorites-list {
+      list-style: none;
+      padding: 10px;
+      margin: 0;
+      display: none; /* Initially hidden */
+    }
+    .favorites-list li {
+      padding: 8px 12px;
+      background: #f1f1f1;
+      margin: 5px 0;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .favorites-list li:hover {
+      background: #ddd;
+    }
+    .favorites-list .remove-fav {
+      background: none;
+      border: none;
+      color: #e74c3c;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Toggle Button with Font Awesome Icon -->
+  <button class="sidebar-toggle" id="sidebarToggle">
+    <i class="fa-regular fa-chart-bar"></i>
+  </button>
+  
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="profile" id="profileArea">
+      <img src="https://via.placeholder.com/80" alt="Profile Picture" id="profilePic">
+      <h2 id="profileName">User Name</h2>
+      <p id="profileEmail">user@example.com</p>
+    </div>
+    <div class="menu">
+     <a href="index.html"> <button id="accessFilesBtn">Upload files</button></a>
+      <button id="favoritesBtn">Favorites</button>
+      <button id="allFilesBtn">All Files</button>
+      <ul id="favoritesList" class="favorites-list"></ul>
+      <button id="deleteAllBtn">Delete All Files</button>
+      <button id="logoutBtn">Logout</button>
+      <a href="about.html"> <button>About</button></a>
+    </div>
+  </div>
+  
+  <!-- Main Content -->
+  <div class="main-content">
+    <h1>My Files</h1>
+    <!-- Search Bar -->
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Search files by name..." oninput="filterFiles()">
+    </div>
+    <!-- File Grid -->
+    <div class="file-grid" id="fileGrid"></div>
+  </div>
+  
+  <script type="module">
+    // First, import and initialize Firebase App
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    const firebaseConfig = { 
+      apiKey: "AIzaSyCYY2GQqS0tCXb7Oxw8AWXhpexq9e8VRUs",
+      authDomain: "aspirehub-32863.firebaseapp.com",
+      projectId: "aspirehub-32863",
+      storageBucket: "aspirehub-32863.appspot.com",
+      messagingSenderId: "686810111182",
+      appId: "1:686810111182:web:4290b4b1b6e64934ec449f",
+      measurementId: "G-KX41R0SSMY"
+    };
+    const app = initializeApp(firebaseConfig);
+    console.log("Firebase App initialized:", app);
+
+    // Now import the other Firebase services using the app
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getStorage, ref, listAll, getDownloadURL, deleteObject, getMetadata } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+    const auth = getAuth(app);
+    const storage = getStorage(app);
+    const db = getFirestore(app);
+    
+    // Load favorites from localStorage (persisted across reloads)
+    let favoritesSet = new Set(JSON.parse(localStorage.getItem("favorites") || "[]"));
+    let isFavoritesMode = false;
+    let fileItems = [];
+
+    // Save favorites to localStorage
+    function saveFavorites() {
+      localStorage.setItem("favorites", JSON.stringify(Array.from(favoritesSet)));
+    }
+    
+    // Sidebar toggle
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+    });
+    
+    // Sidebar buttons
+    const favoritesBtn = document.getElementById('favoritesBtn');
+    const allFilesBtn = document.getElementById('allFilesBtn');
+    const accessFilesBtn = document.getElementById('accessFilesBtn');
+
+    favoritesBtn.addEventListener('click', () => {
+      // Toggle favorites mode on
+      isFavoritesMode = true;
+      filterFiles();
+      sidebar.classList.remove('open');
+    });
+    
+    allFilesBtn.addEventListener('click', () => {
+      // Toggle favorites mode off
+      isFavoritesMode = false;
+      filterFiles();
+      sidebar.classList.remove('open');
+    });
+    
+    accessFilesBtn.addEventListener('click', () => {
+      // Show all files without filtering by favorites
+      isFavoritesMode = false;
+      filterFiles();
+      sidebar.classList.remove('open');
+    });
+    
+    // Logout functionality
+    const logoutBtn = document.getElementById('logoutBtn');
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        window.location.href = 'index.html';
+      } catch (error) {
+        console.error('Logout Error:', error);
+        alert('Error logging out. Please try again.');
+      }
+    });
+    
+    // Delete All Files functionality
+    const deleteAllBtn = document.getElementById('deleteAllBtn');
+    deleteAllBtn.addEventListener('click', async () => {
+      const password = prompt("Enter password to delete all files:");
+      if (password !== "anjan@2007") {
+        alert("Incorrect password!");
+        return;
+      }
+      const user = auth.currentUser;
+      if (!user) {
+        alert("No user signed in!");
+        return;
+      }
+      if (confirm("Are you sure you want to delete ALL your files?")) {
+        try {
+          const storageRef = ref(storage, `users/${user.uid}/files`);
+          const result = await listAll(storageRef);
+          const deletePromises = result.items.map(item => deleteObject(item));
+          await Promise.all(deletePromises);
+          alert("All files deleted successfully!");
+          loadFiles(user.uid);
+        } catch (error) {
+          console.error("Error deleting all files:", error);
+          alert("Error deleting files. Please try again.");
+        }
+      }
+    });
+    
+    // Ensure user is authenticated before loading files
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        alert('Please sign in first!');
+        window.location.href = 'index.html';
+        return;
+      }
+      // Display user info in sidebar
+      document.getElementById('profileEmail').textContent = user.email;
+      document.getElementById('profileName').textContent = user.displayName || "User Name";
+      if (user.photoURL) {
+        document.getElementById('profilePic').src = user.photoURL;
+      }
+      document.getElementById('searchInput').addEventListener('input', filterFiles);
+      await loadFiles(user.uid);
+    });
+    
+    // Load files from Firebase Storage and sort so new files appear first
+    async function loadFiles(userId) {
+      const storageRef = ref(storage, `users/${userId}/files`);
+      try {
+        const fileListResult = await listAll(storageRef);
+        fileItems = [];
+        const fileGrid = document.getElementById('fileGrid');
+        fileGrid.innerHTML = '';
+    
+        // Retrieve metadata and create file items for each file
+        for (const item of fileListResult.items) {
+          const url = await getDownloadURL(item);
+          const metadata = await getMetadata(item);
+          const fileItemElement = createFileItemElement(item.name, url, metadata);
+          // Store the file's creation time (convert string to Date)
+          const timeCreated = new Date(metadata.timeCreated);
+          fileItems.push({ name: item.name, element: fileItemElement, timeCreated });
+        }
+        
+        // Sort fileItems so that newer files appear first
+        fileItems.sort((a, b) => b.timeCreated - a.timeCreated);
+    
+        // Append sorted items to the grid
+        fileItems.forEach(item => fileGrid.appendChild(item.element));
+      } catch (error) {
+        console.error("Error listing files:", error);
+        alert("Error fetching files. Please try again.");
+      }
+    }
+    
+    // Create file item element (without the rename button)
+    function createFileItemElement(name, url, metadata) {
+      const fileItem = document.createElement('div');
+      fileItem.className = 'file-item';
+      fileItem.setAttribute("data-filename", name.toLowerCase());
+    
+      // Add favorite star icon
+      const favBtn = document.createElement('button');
+      favBtn.className = 'favorite-btn';
+      
+      // Check if file is already favorited from localStorage
+      if (favoritesSet.has(name)) {
+        favBtn.classList.add('favorited');
+        favBtn.innerHTML = '<i class="fa-solid fa-star"></i>';
+      } else {
+        favBtn.innerHTML = '<i class="fa-regular fa-star"></i>';
+      }
+      
+      favBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // Toggle favorite status
+        if (favoritesSet.has(name)) {
+          favoritesSet.delete(name);
+          favBtn.classList.remove('favorited');
+          favBtn.innerHTML = '<i class="fa-regular fa-star"></i>';
+        } else {
+          favoritesSet.add(name);
+          favBtn.classList.add('favorited');
+          favBtn.innerHTML = '<i class="fa-solid fa-star"></i>';
+        }
+        saveFavorites();
+        // If in favorites mode, update display
+        if (isFavoritesMode) {
+          filterFiles();
+        }
+      });
+      fileItem.appendChild(favBtn);
+    
+      // Create preview element based on file type
+      if (name.match(/\.(jpg|jpeg|png|gif)$/i)) {
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = name;
+        fileItem.appendChild(img);
+      } else if (name.match(/\.pdf$/i)) {
+        const embed = document.createElement('embed');
+        embed.src = url;
+        embed.type = 'application/pdf';
+        fileItem.appendChild(embed);
+      }
+    
+      // Content container for file name and action buttons
+      const content = document.createElement('div');
+      content.className = 'content';
+    
+      // File name
+      const fileName = document.createElement('h3');
+      fileName.textContent = name;
+      content.appendChild(fileName);
+    
+      // Action buttons container
+      const actions = document.createElement('div');
+      actions.className = 'actions';
+    
+      // Download button
+      const downloadBtn = document.createElement('a');
+      downloadBtn.className = 'download-btn';
+      downloadBtn.href = url;
+      downloadBtn.download = true;
+      downloadBtn.textContent = name.match(/\.pdf$/i) ? 'Download PDF' : 'Download';
+    
+      // Delete button
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'delete-btn';
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.addEventListener('click', () => handleDeleteFile(name));
+    
+      actions.appendChild(downloadBtn);
+      actions.appendChild(deleteBtn);
+      content.appendChild(actions);
+      fileItem.appendChild(content);
+    
+      return fileItem;
+    }
+    
+    // Handle single file deletion
+    async function handleDeleteFile(fileName) {
+      const user = auth.currentUser;
+      if (!user) return;
+      if (confirm(`Are you sure you want to delete "${fileName}"?`)) {
+        try {
+          const fileRef = ref(storage, `users/${user.uid}/files/${fileName}`);
+          await deleteObject(fileRef);
+          // Remove from favorites if it's there
+          if (favoritesSet.has(fileName)) {
+            favoritesSet.delete(fileName);
+            saveFavorites();
+          }
+          await loadFiles(user.uid);
+          alert('File deleted successfully!');
+        } catch (error) {
+          console.error("Error deleting file:", error);
+          alert("Error deleting file. Please try again.");
+        }
+      }
+    }
+    
+    // Filter files by name based on search query and favorites mode
+    function filterFiles() {
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+      fileItems.forEach(item => {
+        const fileName = item.name.toLowerCase();
+        let visible = fileName.includes(query);
+        if (isFavoritesMode) {
+          visible = visible && favoritesSet.has(item.name);
+        }
+        item.element.style.display = visible ? "" : "none";
+      });
+    }
+  </script>
+</body>
+</html>

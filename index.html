@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>File Manager</title>
+  <!-- Font Awesome for the new icon -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <!-- Google Font for a modern look -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #2196F3;
+      --primary-dark: #1976D2;
+      --accent-color: #f44336;
+      --bg-color: #ffffff;
+      --text-color: #333;
+      --border-radius: 12px;
+      --sidebar-width: 280px;
+      --transition-speed: 0.3s;
+      --box-shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --box-shadow-medium: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #fefefe 0%, #e3f2fd 100%);
+      color: var(--text-color);
+      padding: 40px 20px;
+      min-height: 100vh;
+      position: relative;
+      padding: 20px; /* Reduce padding */
+}
+
+    
+
+    /* Headings */
+    h1 {
+  text-align: left; /* Align left for a more natural look */
+  font-size: 2.2rem;
+  margin-bottom: 20px;
+  padding-left: 10px;
+}
+
+
+    /* Main Container */
+    .container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+
+.drop-zone {
+  border: 2px dashed #b0bec5; /* Lighter border for a subtle look */
+  border-radius: 10px; /* Softer edges */
+  padding: 40px; /* Reduced padding */
+  text-align: center;
+  margin: 20px 0;
+  cursor: pointer;
+  transition: border-color var(--transition-speed), transform var(--transition-speed);
+  background: transparent; /* No solid background */
+  color: #37474f; /* Darker text for better visibility */
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+}
+
+.drop-zone:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-2px); /* Slight lift effect */
+}
+
+
+    /* Button Container */
+    .button-container {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 25px;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 14px 28px;
+      background: var(--primary-color);
+      color: #fff;
+      border: none;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background var(--transition-speed), transform var(--transition-speed);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    /* Textarea */
+    #textInput {
+      width: 100%;
+      height: 160px;
+      padding: 15px;
+      border: 1px solid #cfd8dc;
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      resize: vertical;
+      margin-bottom: 20px;
+      transition: border-color var(--transition-speed);
+    }
+
+    #textInput:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -100%;
+      width: var(--sidebar-width);
+      height: 100%;
+      background: linear-gradient(135deg, #ffffff 0%, #e3f2fd 100%);
+      box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+      border-top-right-radius: var(--border-radius);
+      border-bottom-right-radius: var(--border-radius);
+      padding: 30px 20px;
+      transition: left var(--transition-speed);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      z-index: 1000;
+    }
+
+    .sidebar.open {
+      left: 0;
+    }
+
+    .sidebar .profile {
+      text-align: center;
+      margin-bottom: 35px;
+      cursor: pointer;
+      transition: transform var(--transition-speed);
+    }
+
+    .sidebar .profile:hover {
+      transform: scale(1.05);
+    }
+
+    .sidebar .profile img {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 15px;
+      border: 3px solid var(--primary-color);
+    }
+
+    .sidebar .profile h2 {
+      font-size: 1.3rem;
+      margin-bottom: 5px;
+      color: var(--primary-dark);
+    }
+
+    .sidebar .profile p {
+      font-size: 0.95rem;
+      color: #666;
+    }
+
+    .sidebar .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .sidebar .menu .btn {
+      width: 100%;
+      text-align: left;
+      padding-left: 25px;
+      background: transparent;
+      box-shadow: none;
+      color: var(--primary-dark);
+      font-weight: 500;
+    }
+
+    .sidebar .menu .btn:hover {
+      color: var(--primary-color);
+    }
+
+    /* Sidebar Toggle Button */
+    .sidebar-toggle {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: #fff;  /* White Background */
+  color: #000;  /* Black Icon */
+  border: none;
+  border-radius: 6px;
+  padding: 12px 16px;
+  cursor: pointer;
+  z-index: 1100;
+  font-size: 1.5rem;  /* Adjust size for better visibility */
+  transition: background 0.3s, transform 0.3s;
+}
+
+.sidebar-toggle:hover {
+  background: #f0f0f0;
+  transform: scale(1.05);
+}
+
+
+    /* Modal Styles for Profile Editing */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 1200;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 30px 35px;
+      border-radius: var(--border-radius);
+      width: 90%;
+      max-width: 420px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      animation: slideDown var(--transition-speed) ease;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-content h3 {
+      margin-bottom: 25px;
+      text-align: center;
+      color: var(--primary-dark);
+    }
+
+    .modal-content input[type="text"],
+    .modal-content input[type="file"] {
+      width: 100%;
+      margin-bottom: 20px;
+      padding: 12px;
+      border: 1px solid #cfd8dc;
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      transition: border-color var(--transition-speed);
+    }
+
+    .modal-content input[type="text"]:focus,
+    .modal-content input[type="file"]:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    .modal-content .modal-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .modal-content .modal-buttons .btn {
+      width: 100%;
+    }
+
+    /* Progress Bar Styles */
+    #progressContainer {
+      display: none;
+      margin: 20px 0;
+      text-align: center;
+    }
+    #uploadProgress {
+      width: 100%;
+      height: 20px;
+    }
+    #progressText {
+      display: block;
+      margin-top: 5px;
+      font-size: 0.9rem;
+      color: var(--primary-dark);
+    }
+
+    /* MOBILE RESPONSIVENESS */
+    @media (max-width: 768px) {
+      body {
+        padding: 20px 10px;
+      }
+      
+      h1 {
+        font-size: 1.8rem;
+      }
+      
+      .container {
+        padding: 25px;
+        margin: 20px auto;
+      }
+      
+      .drop-zone {
+        padding: 40px;
+        font-size: 1rem;
+      }
+      
+      .btn {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+      }
+      
+      #textInput {
+        height: 140px;
+        padding: 10px;
+      }
+      
+      /* Adjust sidebar width for smaller devices */
+      .sidebar {
+        width: 220px;
+        padding: 20px 15px;
+      }
+      
+      .sidebar .profile img {
+        width: 75px;
+        height: 75px;
+      }
+      
+      .sidebar-toggle {
+        padding: 10px 14px;
+        font-size: 1rem;
+      }
+    }
+
+    /* EXTRA SMALL DEVICES */
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.6rem;
+      }
+      
+      .container {
+        padding: 20px;
+      }
+      
+      .drop-zone {
+        padding: 30px;
+      }
+      
+      .btn {
+        padding: 10px 18px;
+        font-size: 0.85rem;
+      }
+      
+      .sidebar {
+        width: 200px;
+      }
+    }
+
+    /* Profile Logo Styles */
+.profile-logo {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--box-shadow-light);
+  cursor: pointer;
+  z-index: 1000;
+  transition: opacity var(--transition-speed), transform var(--transition-speed);
+}
+
+.profile-logo img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Hide the profile logo when the sidebar is open */
+.sidebar.open ~ .profile-logo {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-100%);
+}
+  </style>
+</head>
+<body>
+  <!-- Sidebar Toggle Icon -->
+  <button class="sidebar-toggle" id="sidebarToggle">
+    <i class="fa-regular fa-chart-bar"></i>
+  </button>
+  
+  
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="profile" id="profileArea">
+      <!-- Replace with user's profile picture if available -->
+      <img src="person.png" alt="Profile Picture" id="profilePic">
+      <h2 id="profileName">User Name</h2>
+      <p id="profileEmail">user@example.com</p>
+    </div>
+    <div class="menu">
+      <button class="btn" id="accessFilesBtn">Access Files</button>
+      <button class="btn" id="logoutBtn">Logout</button>
+    </div>
+  </div>
+  
+  <!-- Modal for Editing Profile -->
+  <div class="modal" id="profileModal">
+    <div class="modal-content">
+      <h3>Edit Profile</h3>
+      <input type="text" id="newDisplayName" placeholder="Enter new display name" />
+      <input type="file" id="newProfilePhoto" accept="image/*" />
+      <div class="modal-buttons">
+        <button class="btn" id="saveProfileBtn">Save</button>
+        <button class="btn" id="cancelProfileBtn" style="background: var(--accent-color);">Cancel</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="container">
+    <h1>File Manager</h1>
+    
+    <div class="drop-zone" id="dropZone">
+      Drag and drop files here or click to upload
+    </div>
+    <input type="file" id="fileInput" hidden multiple>
+    
+    <!-- Progress Bar Container -->
+    <div id="progressContainer">
+      <progress id="uploadProgress" max="100" value="0"></progress>
+      <span id="progressText">0%</span>
+    </div>
+    
+    <div class="button-container">
+      <button class="btn" id="uploadFilesBtn">Upload</button>
+    </div>
+  
+    <textarea id="textInput" placeholder="Write your text here..."></textarea>
+    <div class="button-container" style="justify-content: center;">
+      <button class="btn" id="uploadTextBtn">Upload Text</button>
+    </div>
+  </div>
+  <!-- Profile Logo in the lower-left corner -->
+<!-- Profile Logo in the lower-left corner -->
+<div class="profile-logo" id="profileLogo">
+    <img id="profileLogoImg" src="person.png" alt="Profile Logo">
+  </div>
+  <script type="module">
+    // Import Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getStorage, ref, uploadBytesResumable, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
+    
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCYY2GQqS0tCXb7Oxw8AWXhpexq9e8VRUs",
+      authDomain: "aspirehub-32863.firebaseapp.com",
+      projectId: "aspirehub-32863",
+      storageBucket: "aspirehub-32863.appspot.com",
+      messagingSenderId: "686810111182",
+      appId: "1:686810111182:web:4290b4b1b6e64934ec449f",
+      measurementId: "G-KX41R0SSMY"
+    };
+    
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const storage = getStorage(app);
+    
+    let currentUser = null;
+    
+    // Cache DOM elements
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const uploadFilesBtn = document.getElementById('uploadFilesBtn');
+    const uploadTextBtn = document.getElementById('uploadTextBtn');
+    const textInput = document.getElementById('textInput');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const accessFilesBtn = document.getElementById('accessFilesBtn');
+    const profileName = document.getElementById('profileName');
+    const profileEmail = document.getElementById('profileEmail');
+    const profilePic = document.getElementById('profilePic');
+    const profileArea = document.getElementById('profileArea');
+    
+    // Modal Elements for Profile Editing
+    const profileModal = document.getElementById('profileModal');
+    const newDisplayName = document.getElementById('newDisplayName');
+    const newProfilePhoto = document.getElementById('newProfilePhoto');
+    const saveProfileBtn = document.getElementById('saveProfileBtn');
+    const cancelProfileBtn = document.getElementById('cancelProfileBtn');
+    
+    // Progress Bar Elements
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('uploadProgress');
+    const progressText = document.getElementById('progressText');
+    
+    // Sidebar Toggle Event
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+    });
+    
+    // Logout Event
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        window.location.href = 'signin.html';
+      } catch (error) {
+        console.error('Logout Error:', error);
+        alert('Error logging out. Please try again.');
+      }
+    });
+    
+    // Access Files Button in Sidebar
+    accessFilesBtn.addEventListener('click', () => {
+      window.location.href = 'files.html';
+    });
+    
+    // File Upload Events
+    uploadFilesBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', handleFileInput);
+    uploadTextBtn.addEventListener('click', uploadText);
+    
+    // Drag and Drop Handlers
+    dropZone.addEventListener('dragover', handleDragOver);
+    dropZone.addEventListener('dragleave', handleDragLeave);
+    dropZone.addEventListener('drop', handleDrop);
+    
+    // Authentication Observer
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      if (!user) {
+        alert('Please sign in to continue!');
+        window.location.href = 'signin.html';
+      } else {
+        // Display user info in the sidebar
+        profileEmail.textContent = user.email;
+        profileName.textContent = user.displayName || "User Name";
+        if(user.photoURL) {
+          profilePic.src = user.photoURL;
+        }
+      }
+    });
+    
+    // Functions for Drag and Drop
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.style.backgroundColor = '#eef6fd';
+    }
+    
+    function handleDragLeave(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.style.backgroundColor = 'var(--bg-color)';
+    }
+    
+    function handleDrop(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.style.backgroundColor = 'var(--bg-color)';
+      const files = e.dataTransfer.files;
+      handleFiles(files);
+    }
+    
+    function handleFileInput(e) {
+      const files = e.target.files;
+      handleFiles(files);
+    }
+    
+    // Upload multiple files to Firebase Storage with progress tracking
+    async function handleFiles(files) {
+      if (!files || files.length === 0) return;
+      
+      // Show progress bar and reset values
+      progressContainer.style.display = 'block';
+      progressBar.value = 0;
+      progressText.textContent = '0%';
+      
+      try {
+        // Upload files sequentially so we can see progress per file
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const storageRef = ref(storage, `users/${currentUser.uid}/files/${file.name}`);
+          const uploadTask = uploadBytesResumable(storageRef, file);
+          
+          // Wrap the upload in a Promise to await its completion
+          await new Promise((resolve, reject) => {
+            uploadTask.on('state_changed', (snapshot) => {
+              // Calculate progress percentage
+              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              console.log(`Uploading ${file.name}: ${progress.toFixed(2)}%`);
+              progressBar.value = progress;
+              progressText.textContent = Math.floor(progress) + '%';
+            }, (error) => {
+              console.error('Upload error:', error);
+              reject(error);
+            }, () => {
+              console.log(`${file.name} uploaded successfully.`);
+              resolve();
+            });
+          });
+        }
+        
+        // Hide progress bar after uploads complete
+        progressContainer.style.display = 'none';
+        alert(`${files.length} file(s) uploaded successfully!`);
+      } catch (error) {
+        console.error('Upload error:', error);
+        alert('Error uploading files. Please try again.');
+      }
+    }
+    
+    // Upload text from textarea to Firebase Storage
+    async function uploadText() {
+      const text = textInput.value.trim();
+      if (!text) {
+        alert('Please enter some text!');
+        return;
+      }
+      try {
+        const filename = `text_${Date.now()}.txt`;
+        const storageRef = ref(storage, `users/${currentUser.uid}/files/${filename}`);
+        await uploadString(storageRef, text);
+        alert('Text uploaded successfully!');
+        textInput.value = '';
+      } catch (error) {
+        console.error('Text upload error:', error);
+        alert('Error uploading text. Please try again.');
+      }
+    }
+    
+    // Open profile modal on clicking the profile area
+    profileArea.addEventListener('click', () => {
+      newDisplayName.value = profileName.textContent;
+      profileModal.classList.add('open');
+    });
+    
+    // Save Profile Changes
+    // Save Profile Changes
+saveProfileBtn.addEventListener('click', async () => {
+  let updatedPhotoURL = currentUser.photoURL;
+  const displayName = newDisplayName.value.trim();
+
+  // If a new profile photo is selected, upload it first
+  if (newProfilePhoto.files.length > 0) {
+    const file = newProfilePhoto.files[0];
+    const photoRef = ref(storage, `users/${currentUser.uid}/profile/${file.name}`);
+    try {
+      const snapshot = await uploadBytesResumable(photoRef, file);
+      updatedPhotoURL = await getDownloadURL(snapshot.ref);
+    } catch (error) {
+      console.error('Profile photo upload error:', error);
+      alert('Error uploading profile photo. Please try again.');
+      return;
+    }
+  }
+
+  // Update Firebase Auth profile
+  try {
+    await updateProfile(currentUser, {
+      displayName: displayName,
+      photoURL: updatedPhotoURL,
+    });
+
+    // Update UI with new info
+    profileName.textContent = displayName;
+    if (updatedPhotoURL) {
+      profilePic.src = updatedPhotoURL; // Update sidebar profile picture
+      document.getElementById('profileLogoImg').src = updatedPhotoURL; // Update profile logo
+    }
+    profileModal.classList.remove('open');
+    // Clear file input for next use
+    newProfilePhoto.value = '';
+  } catch (error) {
+    console.error('Profile update error:', error);
+    alert('Error updating profile. Please try again.');
+  }
+});
+    
+    // Cancel Profile Editing
+    cancelProfileBtn.addEventListener('click', () => {
+      profileModal.classList.remove('open');
+      newProfilePhoto.value = "";
+    });
+
+    // Authentication Observer
+onAuthStateChanged(auth, (user) => {
+  currentUser = user;
+  if (!user) {
+    alert('Please sign in to continue!');
+    window.location.href = 'signin.html';
+  } else {
+    // Display user info in the sidebar
+    profileEmail.textContent = user.email;
+    profileName.textContent = user.displayName || 'User Name';
+    if (user.photoURL) {
+      profilePic.src = user.photoURL; // Update sidebar profile picture
+      document.getElementById('profileLogoImg').src = user.photoURL; // Update profile logo
+    }
+  }
+});
+
+// Toggle sidebar when profile logo is clicked
+const profileLogo = document.getElementById('profileLogo');
+profileLogo.addEventListener('click', () => {
+  sidebar.classList.toggle('open');
+});
+  </script>
+  
+</body>
+</html>

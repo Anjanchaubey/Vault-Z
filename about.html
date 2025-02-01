@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Anjan</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* Reset & Global Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #1e1e2f, #23233f);
+      color: #f0f0f0;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+    
+    /* Container */
+    .container {
+      max-width: 1000px;
+      margin: 60px auto;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+      animation: fadeIn 1s ease-out;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #ff416c, #ff4b2b);
+      padding: 50px 20px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: rotate 8s linear infinite;
+    }
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    header h1 {
+      position: relative;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 3rem;
+      letter-spacing: 1px;
+      z-index: 1;
+      text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    
+    /* Content */
+    .content {
+      padding: 40px 30px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+    }
+    
+    .card {
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 12px;
+      padding: 25px 20px;
+      border-left: 5px solid #ff416c;
+      backdrop-filter: blur(5px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .card::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, #ff416c, transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    
+    .card:hover::after {
+      opacity: 1;
+    }
+    
+    .card h2 {
+      font-family: 'Montserrat', sans-serif;
+      margin-bottom: 15px;
+      font-size: 1.8rem;
+      color: #ff4b2b;
+    }
+    
+    .card p {
+      font-size: 1rem;
+      color: #dcdcdc;
+    }
+    
+    /* Footer */
+    footer {
+      background: #1e1e2f;
+      text-align: center;
+      padding: 20px;
+      font-size: 0.9rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 2.5rem;
+      }
+      .container {
+        margin: 30px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>About Anjan</h1>
+    </header>
+    <div class="content">
+      <div class="card">
+        <h2>Hey, I'm Anjan!</h2>
+        <p>
+          Uh... I'm Anjan Chaubey, a 10th grader studying under CBSE in India. Call me Anjan in our convos. I'm still figuring out my future – maybe diving into software engineering or even medicine. Who knows, right?
+        </p>
+      </div>
+      <div class="card">
+        <h2>Coding &amp; Learning</h2>
+        <p>
+          I'm super into coding and love working with HTML, CSS, and JavaScript. Sometimes it distracts me from my studies, but, uh... it always teaches me something new. Constant learning, bro!
+        </p>
+      </div>
+      <div class="card">
+        <h2>Movies &amp; Fandoms</h2>
+        <p>
+          When I'm not coding, I'm all about movies – especially sci-fi, superhero flicks, and suspense thrillers. Horror movies? Not really my vibe, but I can vibe with a good one sometimes.
+        </p>
+      </div>
+      <div class="card">
+        <h2>Favorite Characters</h2>
+        <p>
+          I'm a huge fan of the Marvel Cinematic Universe. Iron Man's my absolute favorite, though I also dig Thor for his raw power. And, uh... Batman is just the coolest!
+        </p>
+      </div>
+      <div class="card">
+        <h2>Ninja Battles?</h2>
+        <p>
+          Oh, and whenever I say "start our Ninja battle," it means we're diving into a Naruto-style ninja battle. It's a quirky thing, but it's all fun and games, bro!
+        </p>
+      </div>
+    </div>
+    <footer>
+      © 2025 Anjan Chaubey. All rights reserved.
+    </footer>
+  </div>
+</body>
+</html>
