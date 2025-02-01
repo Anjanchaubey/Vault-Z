@@ -9,9 +9,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <!-- Font Awesome CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
-    /* Global Styles */
+    /* (CSS removed/minimized for brevity) */
+     /* Global Styles */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -285,14 +286,20 @@
       <p id="profileEmail">user@example.com</p>
     </div>
     <div class="menu">
-          <button id="favoritesBtn">Favorites</button>
+      <button id="favoritesBtn">Favorites</button>
       <button id="allFilesBtn">All Files</button>
+      <!-- New Folder Selection Buttons -->
+      <button id="generalFolderBtn">General Folder</button>
+      <button id="vaultFolderBtn">Personal Vault Folder</button>
       <ul id="favoritesList" class="favorites-list"></ul>
       <button id="deleteAllBtn">Delete All Files</button>
-      <a href="index.html"> <button style="background-color: black; padding: 10px; border-radius: 10px; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; color: #ddd;" id="accessFilesBtn">Upload files</button></a>
-
-      <button id="logoutBtn" style="background-color: rgb(215, 29, 29); padding: 10px; border-radius: 10px; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; color: #ddd;">Logout</button>
-      <a href="about.html"> <button style="background-color: rgb(204, 229, 20); padding: 10px; border-radius: 10px; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; color: #131111;">About</button></a>
+      <a href="index.html">
+        <button id="accessFilesBtn" style="background-color: black; padding: 10px; border-radius: 10px; font-family: 'Trebuchet MS', Arial, sans-serif; color: #ddd;">Upload files</button>
+      </a>
+      <button id="logoutBtn" style="background-color: rgb(215, 29, 29); padding: 10px; border-radius: 10px; font-family: 'Trebuchet MS', Arial, sans-serif; color: #ddd;">Logout</button>
+      <a href="about.html">
+        <button style="background-color: rgb(204, 229, 20); padding: 10px; border-radius: 10px; font-family: 'Trebuchet MS', Arial, sans-serif; color: #131111;">About</button>
+      </a>
     </div>
   </div>
   
@@ -308,7 +315,7 @@
   </div>
   
   <script type="module">
-    // First, import and initialize Firebase App
+    // Import and initialize Firebase App
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     const firebaseConfig = { 
       apiKey: "AIzaSyCYY2GQqS0tCXb7Oxw8AWXhpexq9e8VRUs",
@@ -322,7 +329,7 @@
     const app = initializeApp(firebaseConfig);
     console.log("Firebase App initialized:", app);
 
-    // Now import the other Firebase services using the app
+    // Import Firebase services
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
     import { getStorage, ref, listAll, getDownloadURL, deleteObject, getMetadata } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
     import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
@@ -331,15 +338,17 @@
     const storage = getStorage(app);
     const db = getFirestore(app);
     
-    // Load favorites from localStorage (persisted across reloads)
+    // Favorites handling (persisted via localStorage)
     let favoritesSet = new Set(JSON.parse(localStorage.getItem("favorites") || "[]"));
     let isFavoritesMode = false;
     let fileItems = [];
-
-    // Save favorites to localStorage
+    
     function saveFavorites() {
       localStorage.setItem("favorites", JSON.stringify(Array.from(favoritesSet)));
     }
+    
+    // Global variable to track selected folder (default "general")
+    let selectedFolder = "general";
     
     // Sidebar toggle
     const sidebarToggle = document.getElementById('sidebarToggle');
@@ -352,25 +361,30 @@
     const favoritesBtn = document.getElementById('favoritesBtn');
     const allFilesBtn = document.getElementById('allFilesBtn');
     const accessFilesBtn = document.getElementById('accessFilesBtn');
-
+    const generalFolderBtn = document.getElementById('generalFolderBtn');
+    const vaultFolderBtn = document.getElementById('vaultFolderBtn');
+    
     favoritesBtn.addEventListener('click', () => {
-      // Toggle favorites mode on
       isFavoritesMode = true;
       filterFiles();
       sidebar.classList.remove('open');
     });
     
     allFilesBtn.addEventListener('click', () => {
-      // Toggle favorites mode off
       isFavoritesMode = false;
       filterFiles();
       sidebar.classList.remove('open');
     });
     
-    accessFilesBtn.addEventListener('click', () => {
-      // Show all files without filtering by favorites
-      isFavoritesMode = false;
-      filterFiles();
+    // Folder selection event listeners
+    generalFolderBtn.addEventListener('click', () => {
+      selectedFolder = "general";
+      loadFiles(auth.currentUser.uid, selectedFolder);
+      sidebar.classList.remove('open');
+    });
+    vaultFolderBtn.addEventListener('click', () => {
+      selectedFolder = "personalVault";
+      loadFiles(auth.currentUser.uid, selectedFolder);
       sidebar.classList.remove('open');
     });
     
@@ -399,14 +413,14 @@
         alert("No user signed in!");
         return;
       }
-      if (confirm("Are you sure you want to delete ALL your files?")) {
+      if (confirm("Are you sure you want to delete ALL your files from the currently selected folder?")) {
         try {
-          const storageRef = ref(storage, `users/${user.uid}/files`);
-          const result = await listAll(storageRef);
+          const folderRef = ref(storage, `users/${user.uid}/files/${selectedFolder}`);
+          const result = await listAll(folderRef);
           const deletePromises = result.items.map(item => deleteObject(item));
           await Promise.all(deletePromises);
-          alert("All files deleted successfully!");
-          loadFiles(user.uid);
+          alert("All files in the folder deleted successfully!");
+          loadFiles(user.uid, selectedFolder);
         } catch (error) {
           console.error("Error deleting all files:", error);
           alert("Error deleting files. Please try again.");
@@ -428,12 +442,13 @@
         document.getElementById('profilePic').src = user.photoURL;
       }
       document.getElementById('searchInput').addEventListener('input', filterFiles);
-      await loadFiles(user.uid);
+      // Load files from the default folder ("general")
+      await loadFiles(user.uid, selectedFolder);
     });
     
-    // Load files from Firebase Storage and sort so new files appear first
-    async function loadFiles(userId) {
-      const storageRef = ref(storage, `users/${userId}/files`);
+    // Load files from Firebase Storage from the selected folder
+    async function loadFiles(userId, folder = "general") {
+      const storageRef = ref(storage, `users/${userId}/files/${folder}`);
       try {
         const fileListResult = await listAll(storageRef);
         fileItems = [];
@@ -445,15 +460,12 @@
           const url = await getDownloadURL(item);
           const metadata = await getMetadata(item);
           const fileItemElement = createFileItemElement(item.name, url, metadata);
-          // Store the file's creation time (convert string to Date)
           const timeCreated = new Date(metadata.timeCreated);
           fileItems.push({ name: item.name, element: fileItemElement, timeCreated });
         }
         
         // Sort fileItems so that newer files appear first
         fileItems.sort((a, b) => b.timeCreated - a.timeCreated);
-    
-        // Append sorted items to the grid
         fileItems.forEach(item => fileGrid.appendChild(item.element));
       } catch (error) {
         console.error("Error listing files:", error);
@@ -461,27 +473,23 @@
       }
     }
     
-    // Create file item element (without the rename button)
+    // Create file item element
     function createFileItemElement(name, url, metadata) {
       const fileItem = document.createElement('div');
       fileItem.className = 'file-item';
       fileItem.setAttribute("data-filename", name.toLowerCase());
     
-      // Add favorite star icon
+      // Favorite star icon
       const favBtn = document.createElement('button');
       favBtn.className = 'favorite-btn';
-      
-      // Check if file is already favorited from localStorage
       if (favoritesSet.has(name)) {
         favBtn.classList.add('favorited');
         favBtn.innerHTML = '<i class="fa-solid fa-star"></i>';
       } else {
         favBtn.innerHTML = '<i class="fa-regular fa-star"></i>';
       }
-      
       favBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        // Toggle favorite status
         if (favoritesSet.has(name)) {
           favoritesSet.delete(name);
           favBtn.classList.remove('favorited');
@@ -492,10 +500,7 @@
           favBtn.innerHTML = '<i class="fa-solid fa-star"></i>';
         }
         saveFavorites();
-        // If in favorites mode, update display
-        if (isFavoritesMode) {
-          filterFiles();
-        }
+        if (isFavoritesMode) filterFiles();
       });
       fileItem.appendChild(favBtn);
     
@@ -546,20 +551,19 @@
       return fileItem;
     }
     
-    // Handle single file deletion
+    // Delete a single file from the currently selected folder
     async function handleDeleteFile(fileName) {
       const user = auth.currentUser;
       if (!user) return;
       if (confirm(`Are you sure you want to delete "${fileName}"?`)) {
         try {
-          const fileRef = ref(storage, `users/${user.uid}/files/${fileName}`);
+          const fileRef = ref(storage, `users/${user.uid}/files/${selectedFolder}/${fileName}`);
           await deleteObject(fileRef);
-          // Remove from favorites if it's there
           if (favoritesSet.has(fileName)) {
             favoritesSet.delete(fileName);
             saveFavorites();
           }
-          await loadFiles(user.uid);
+          await loadFiles(user.uid, selectedFolder);
           alert('File deleted successfully!');
         } catch (error) {
           console.error("Error deleting file:", error);
@@ -567,8 +571,17 @@
         }
       }
     }
-    
-    // Filter files by name based on search query and favorites mode
+    vaultFolderBtn.addEventListener('click', () => {
+            const enteredPassword = prompt("Enter password for Personal Vault:");
+            if (enteredPassword === "anjan@2007") {
+                selectedFolder = "personalVault";
+                loadFiles(auth.currentUser.uid, selectedFolder);
+                sidebar.classList.remove('open');
+            } else {
+                alert("Incorrect password. Access to Personal Vault denied.");
+            }
+        });
+    // Filter files by search query and favorites mode
     function filterFiles() {
       const query = document.getElementById('searchInput').value.trim().toLowerCase();
       fileItems.forEach(item => {
@@ -581,7 +594,7 @@
       });
     }
   </script>
-
-<script src="https://apis.google.com/js/api.js"></script>
+  
+  <script src="https://apis.google.com/js/api.js"></script>
 </body>
 </html>
