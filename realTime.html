@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Realtime Text Sync with Dope Sidebar</title>
+  <title>Realtime Text Sync with Sidebar Saves</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
@@ -16,9 +16,18 @@
     html, body {
       height: 100%;
       font-family: 'Montserrat', sans-serif;
-      background: linear-gradient(135deg, #1f1c2c, #928dab);
-      color: #f1f1f1;
+      /* Default PC wallpaper */
+      background: url('https://c0.wallpaperflare.com/preview/134/372/59/abstract-background-copyspace-brainstorm.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #333;
       overflow-x: hidden;
+    }
+    /* Phone wallpaper override */
+    @media (max-width: 600px) {
+      html, body {
+        background: url('https://img.freepik.com/free-photo/white-plant-branch-gray-brick-wall-natural-light-background-mobile-wallpaper_53876-139802.jpg?t=st=1738420566~exp=1738424166~hmac=006abf649687d048f980f92aafce2faa9dc25fd0f6c8655b485b586f15953022&w=360') no-repeat center center fixed;
+        background-size: cover;
+      }
     }
     a {
       text-decoration: none;
@@ -26,79 +35,104 @@
     }
     button {
       font-family: inherit;
+      cursor: pointer;
     }
-    
-    /* Container & Layout */
+    /* Minimal container & layout */
     body {
       padding: 20px;
       position: relative;
     }
-    
-    /* Auth Container */
+    /* Minimalistic Auth Container */
     .auth-container {
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(255, 255, 255, 0.8);
       padding: 20px 30px;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+      border-radius: 8px;
       max-width: 400px;
       margin: 50px auto 30px;
       text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     .auth-container input {
       width: 100%;
-      padding: 12px 15px;
+      padding: 10px 12px;
       margin: 10px 0;
-      border: none;
-      border-radius: 6px;
-      outline: none;
+      border: 1px solid #ccc;
+      border-radius: 4px;
       font-size: 1rem;
     }
     .auth-container button {
       width: 100%;
-      padding: 12px;
+      padding: 10px;
       margin-top: 15px;
-      background: #ff416c;
+      background: #3498db;
       border: none;
-      border-radius: 6px;
-      font-size: 1.1rem;
+      border-radius: 4px;
+      font-size: 1rem;
       font-weight: 600;
       color: #fff;
-      cursor: pointer;
-      transition: background 0.3s ease, transform 0.3s ease;
+      transition: background 0.3s ease;
     }
     .auth-container button:hover {
-      background: #ff4b2b;
-      transform: translateY(-2px);
+      background: #2980b9;
     }
     #userStatus {
       margin-bottom: 15px;
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 600;
     }
-    
+    /* Title Input */
+    #titleInput {
+      width: 100%;
+      max-width: 900px;
+      padding: 10px 12px;
+      margin: 20px auto;
+      display: block;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+      background: rgba(255,255,255,0.8);
+      color: #333;
+    }
+    #titleInput:focus {
+      outline: none;
+      border-color: #3498db;
+    }
     /* Real-Time Textarea */
     #textArea {
       width: 100%;
       max-width: 900px;
       height: 300px;
       padding: 20px;
-      font-size: 1.1rem;
-      border: none;
-      border-radius: 8px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
       resize: vertical;
-      background: rgba(255, 255, 255, 0.1);
-      color: #f1f1f1;
-      box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(2px);
+      background: rgba(255,255,255,0.8);
+      color: #333;
       margin: 0 auto;
       display: block;
-      transition: background 0.3s ease;
     }
     #textArea:focus {
       outline: none;
-      background: rgba(255, 255, 255, 0.15);
+      border-color: #3498db;
     }
-    
+    /* Save Button */
+    #saveBtn {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      background: #2ecc71;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      transition: background 0.3s ease;
+      max-width: 200px;
+    }
+    #saveBtn:hover {
+      background: #27ae60;
+    }
     /* Sidebar Styles */
     .sidebar {
       position: fixed;
@@ -106,8 +140,8 @@
       left: -300px;
       width: 300px;
       height: 100%;
-      background: linear-gradient(135deg, #ff416c, #ff4b2b);
-      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.8);
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 2px 0 8px rgba(0,0,0,0.1);
       transition: left 0.4s ease;
       padding: 40px 20px;
       z-index: 1000;
@@ -121,96 +155,148 @@
       margin-bottom: 30px;
     }
     .sidebar .profile img {
-      width: 100px;
-      height: 100px;
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
       object-fit: cover;
-      margin-bottom: 15px;
-      border: 3px solid #fff;
+      margin-bottom: 10px;
+      border: 2px solid #3498db;
     }
     .sidebar .profile h2 {
-      font-size: 1.5rem;
-      font-weight: 800;
+      font-size: 1.2rem;
+      font-weight: 600;
       margin-bottom: 5px;
+      color: #333;
     }
     .sidebar .profile p {
-      font-size: 0.95rem;
-      color: #e0e0e0;
+      font-size: 0.9rem;
+      color: #666;
     }
     .sidebar .menu button {
       width: 100%;
-      padding: 12px;
+      padding: 10px;
       margin: 12px 0;
-      background: rgba(255, 255, 255, 0.2);
-      border: 2px solid #fff;
-      border-radius: 6px;
-      font-size: 1.1rem;
+      background: #3498db;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
       font-weight: 600;
       color: #fff;
-      cursor: pointer;
-      transition: background 0.3s ease, transform 0.3s ease;
+      transition: background 0.3s ease;
     }
     .sidebar .menu button:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: scale(1.02);
+      background: #2980b9;
     }
-    
+    /* Saved Texts List in Sidebar */
+    #savedTextsList {
+      margin-top: 30px;
+    }
+    .saved-item {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      color: #333;
+    }
+    .saved-item:hover {
+      background: #f0f0f0;
+    }
     /* Sidebar Toggle Button */
     .sidebar-toggle {
       position: fixed;
       top: 25px;
       left: 25px;
-      background: rgba(0, 0, 0, 0.7);
-      border: none;
-      padding: 12px 16px;
-      border-radius: 6px;
-      font-size: 1.4rem;
-      color: #fff;
-      cursor: pointer;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid #ccc;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 1.2rem;
+      color: #333;
       z-index: 1100;
-      transition: background 0.3s ease, transform 0.3s ease;
+      transition: background 0.3s ease;
     }
     .sidebar-toggle:hover {
-      background: rgba(0, 0, 0, 0.85);
-      transform: scale(1.05);
+      background: #f0f0f0;
     }
-    
     /* Profile Logo in the Lower Left Corner */
     .profile-logo {
       position: fixed;
       bottom: 25px;
       left: 25px;
-      width: 60px;
-      height: 60px;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
       overflow: hidden;
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.8);
+      border: 1px solid #ccc;
       cursor: pointer;
       z-index: 1100;
       transition: transform 0.3s ease;
     }
     .profile-logo:hover {
-      transform: scale(1.1);
+      transform: scale(1.05);
     }
     .profile-logo img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
-    
-    /* Scrollbar Styling for Sidebar */
-    .sidebar::-webkit-scrollbar {
-      width: 8px;
+    /* Modal Popup Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1200;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background: rgba(255,255,255,0.95);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
-    .sidebar::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.1);
+    .modal-content {
+      background: #fff;
+      margin: auto;
+      padding: 20px;
+      border-radius: 4px;
+      max-width: 800px;
+      width: 100%;
+      max-height: 90%;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-    .sidebar::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.3);
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .modal-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #333;
+    }
+    .close-btn {
+      background: #e74c3c;
+      border: none;
+      color: #fff;
+      padding: 6px 10px;
+      font-size: 1rem;
+      cursor: pointer;
       border-radius: 4px;
     }
-    
-    /* Responsive Tweaks */
+    .copy-btn-modal {
+      background: #2ecc71;
+      border: none;
+      color: #fff;
+      padding: 6px 10px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border-radius: 4px;
+      margin-top: 15px;
+    }
     @media (max-width: 600px) {
       .sidebar {
         width: 260px;
@@ -228,7 +314,7 @@
 <body>
   <!-- Sidebar Toggle Button -->
   <button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
-
+  
   <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
     <div class="profile" id="sidebarProfile">
@@ -238,10 +324,12 @@
     </div>
     <div class="menu">
       <button id="logoutBtn">Logout</button>
-      <a href="index.html"><button id="logoutBtn">MAIN PAGE</button></a>
+      <a href="index.html"><button id="mainPageBtn">MAIN PAGE</button></a>
     </div>
+    <!-- Saved Texts List (Titles Only) -->
+    <div id="savedTextsList"></div>
   </div>
-
+  
   <!-- Authentication Container -->
   <div class="auth-container" id="authContainer">
     <div id="userStatus">Not logged in</div>
@@ -251,23 +339,39 @@
       <button onclick="login()">Login</button>
     </div>
   </div>
-
+  
+  <!-- Title Input (enabled when logged in) -->
+  <input type="text" id="titleInput" placeholder="Enter title for saved text" disabled>
+  
   <!-- Real-Time Textarea -->
   <textarea id="textArea" placeholder="Login to start typing..." disabled></textarea>
-
+  
+  <!-- Save Button -->
+  <button id="saveBtn" disabled>Save Text</button>
+  
+  <!-- Modal Popup for Full Saved Text -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle"></div>
+        <button class="close-btn" id="closeModal">Close</button>
+      </div>
+      <div id="modalText"></div>
+      <button class="copy-btn-modal" id="copyModalBtn">Copy Text</button>
+    </div>
+  </div>
+  
   <!-- Profile Logo at Lower Left Corner -->
   <div class="profile-logo" id="profileLogo">
     <img id="profileLogoImg" src="person.png" alt="Profile Logo">
   </div>
-
+  
   <!-- Firebase & App Script -->
   <script type="module">
-    // Import Firebase modules
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getDatabase, ref as dbRef, set, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    import { getDatabase, ref as dbRef, set, onValue, push } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-
-    // Firebase configuration (update as needed)
+  
     const firebaseConfig = {
       apiKey: "AIzaSyCYY2GQqS0tCXb7Oxw8AWXhpexq9e8VRUs",
       authDomain: "aspirehub-32863.firebaseapp.com",
@@ -278,18 +382,18 @@
       measurementId: "G-KX41R0SSMY",
       databaseURL: "https://aspirehub-32863-default-rtdb.asia-southeast1.firebasedatabase.app"
     };
-
-    // Initialize Firebase
+  
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const database = getDatabase(app);
-
-    // DOM Elements
+  
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
     const userStatus = document.getElementById('userStatus');
     const authButtons = document.getElementById('authButtons');
+    const titleInput = document.getElementById('titleInput');
     const textArea = document.getElementById('textArea');
+    const saveBtn = document.getElementById('saveBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.getElementById('sidebar');
@@ -298,43 +402,53 @@
     const profileEmail = document.getElementById('profileEmail');
     const profileLogo = document.getElementById('profileLogo');
     const profileLogoImg = document.getElementById('profileLogoImg');
-
+    const savedTextsList = document.getElementById('savedTextsList');
+  
+    // Modal Elements
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalText = document.getElementById('modalText');
+    const closeModal = document.getElementById('closeModal');
+    const copyModalBtn = document.getElementById('copyModalBtn');
+  
     let currentUser = null;
-
-    // Sidebar Toggle Events
+    let currentModalText = "";
+  
     sidebarToggle.addEventListener('click', () => {
       sidebar.classList.toggle('open');
     });
     profileLogo.addEventListener('click', () => {
       sidebar.classList.toggle('open');
     });
-
-    // Authentication Observer
+  
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUser = user;
         userStatus.textContent = `Logged in as: ${user.email}`;
         authButtons.style.display = 'none';
         textArea.disabled = false;
-        // Update Sidebar & Profile Logo Info
+        saveBtn.disabled = false;
+        titleInput.disabled = false;
         profileEmail.textContent = user.email;
         profileName.textContent = user.displayName || "User Name";
         if (user.photoURL) {
           profilePic.src = user.photoURL;
           profileLogoImg.src = user.photoURL;
         }
-        // Setup Realtime Text Sync
         setupRealtimeUpdates(user);
+        setupSavedTexts(user);
       } else {
         currentUser = null;
         userStatus.textContent = 'Not logged in';
         authButtons.style.display = 'block';
         textArea.disabled = true;
+        saveBtn.disabled = true;
+        titleInput.disabled = true;
         textArea.value = '';
+        savedTextsList.innerHTML = '';
       }
     });
-
-    // Login Function
+  
     async function login() {
       const email = emailInput.value;
       const password = passwordInput.value;
@@ -344,8 +458,8 @@
         alert('Login error: ' + error.message);
       }
     }
-
-    // Logout Event
+    window.login = login;
+  
     logoutBtn.addEventListener('click', async () => {
       try {
         await signOut(auth);
@@ -353,22 +467,80 @@
         alert('Logout error: ' + error.message);
       }
     });
-
-    // Realtime Database Sync
+  
     function setupRealtimeUpdates(user) {
       const userTextRef = dbRef(database, `users/${user.uid}/text`);
-      // Listen for changes and update textarea
       onValue(userTextRef, (snapshot) => {
         const text = snapshot.val() || '';
         if (text !== textArea.value) {
           textArea.value = text;
         }
       });
-      // Update database on input
       textArea.addEventListener('input', (e) => {
         set(userTextRef, e.target.value);
       });
     }
+  
+    saveBtn.addEventListener('click', () => {
+      if (!currentUser) return;
+      const title = titleInput.value.trim();
+      const text = textArea.value;
+      if (title === "") {
+        alert("Please enter a title for the saved text.");
+        return;
+      }
+      const userSavesRef = dbRef(database, `users/${currentUser.uid}/saves`);
+      push(userSavesRef, {
+        title: title,
+        text: text,
+        timestamp: Date.now()
+      }).then(() => {
+        saveBtn.textContent = "Saved!";
+        setTimeout(() => { saveBtn.textContent = "Save Text"; }, 1500);
+        titleInput.value = "";
+      }).catch((error) => {
+        alert('Save error: ' + error.message);
+      });
+    });
+  
+    function setupSavedTexts(user) {
+      const userSavesRef = dbRef(database, `users/${user.uid}/saves`);
+      onValue(userSavesRef, (snapshot) => {
+        const saves = snapshot.val();
+        savedTextsList.innerHTML = "";
+        if (saves) {
+          const savesArray = Object.entries(saves).sort((a, b) => b[1].timestamp - a[1].timestamp);
+          savesArray.forEach(([key, save]) => {
+            const item = document.createElement('div');
+            item.className = 'saved-item';
+            item.textContent = save.title;
+            item.addEventListener('click', () => {
+              modalTitle.textContent = save.title;
+              modalText.textContent = save.text;
+              currentModalText = save.text;
+              modal.style.display = "flex";
+            });
+            savedTextsList.appendChild(item);
+          });
+        }
+      });
+    }
+  
+    closeModal.addEventListener('click', () => {
+      modal.style.display = "none";
+    });
+  
+    copyModalBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(currentModalText)
+        .then(() => alert("Text copied to clipboard!"))
+        .catch(() => alert("Failed to copy text."));
+    });
+  
+    window.addEventListener('click', (event) => {
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    });
   </script>
 </body>
 </html>
